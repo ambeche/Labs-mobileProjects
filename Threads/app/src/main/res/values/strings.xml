@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Threads</string>
+    <string name="url">"https://bloglister-app.herokuapp.com/api/blogs</string>
+</resources>
