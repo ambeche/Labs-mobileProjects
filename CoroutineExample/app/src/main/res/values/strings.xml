@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CoroutineExample</string>
+    <string name="url">https://users.metropolia.fi/~tamanjic/frontEnd/salad1.jpg</string>
+    <string name="title">Yum Yummy!</string>
+    <string name="short_description">Mouth watering salad: contains goat cheese,
+    sun-dried tomatoes, olives, cheri tomatoes, lettuce and vine fruit</string>
+    <string name="btnToggle" >toggle</string>
+    <string name="bon" >Bon Appetite!</string>
+    <string name="salad_content" >Fresh Yummy salads: contains sun-dried tomatoes, goat cheese,
+    cheri tomatoes, olives and spinach</string>
+</resources>
