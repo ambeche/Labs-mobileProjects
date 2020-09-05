@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ImageCapture</string>
+    <string name="description">image captured from phone camera</string>
+</resources>
