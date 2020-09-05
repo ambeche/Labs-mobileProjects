@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ImageCapture2</string>
+    <string name="description">photo loaded from file</string>
+</resources>
