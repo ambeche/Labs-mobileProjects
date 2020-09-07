@@ -8,6 +8,8 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
@@ -21,17 +23,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         sm = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         ps = sm.getDefaultSensor(TYPE_PROXIMITY)
     }
+    private fun toast(text: String) {
+        Toast.makeText(
+            this, text, Toast.LENGTH_SHORT).show()
+    }
 
     override fun onSensorChanged (e: SensorEvent?) {
        if (e?.sensor == ps) {
-           tvProximity.text = e?.values?.get(0).toString()
+           var distance = e?.values?.get(0).toString()
+           tvProximity.text = distance
            tvAccuracy.text = e?.accuracy.toString()
+
+           when(e?.values?.get(0)?.toInt()) {
+                in 0..3 -> toast(getString(R.string.near, distance ))
+                else -> toast(getString(R.string.far, distance ))
+           }
        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-        sensor.isWakeUpSensor
-        tvProximity.text = accuracy.toString()
+       Log.d("accuracy", accuracy.toString())
     }
 
     override fun onResume() {
