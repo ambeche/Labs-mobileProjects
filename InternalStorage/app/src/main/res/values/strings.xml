@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">InternalStorage</string>
+    <string name="btn_save">save</string>
+    <string name="fill_hint">write to file</string>
+    <string name="saved">Text saved successfully!</string>
+    <string name="failed">Could not read from file</string>
+    <string name="read">Read File</string>
+    <string name="tag_read">read</string>
+    <string name="tag_write">write</string>
+    <string name="title_read">Reading From File</string>
+    <string name="title_write">Write To File</string>
+    <string name="write">Write File</string>
+</resources>
