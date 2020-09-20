@@ -3,6 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="8dp"
     android:padding="8dp">
 
     <TextView
@@ -10,8 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
-        android:gravity="center_horizontal"
         android:layout_marginStart="4dp"
+        android:textSize="16sp"
         android:elevation="1dp"
         android:maxLines="2" />
     <TextView

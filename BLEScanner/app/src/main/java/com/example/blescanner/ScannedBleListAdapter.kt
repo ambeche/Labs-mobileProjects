@@ -53,8 +53,8 @@ class ScannedBleListAdapter(private val context: Context) : BaseAdapter() {
         return true
     }
 
-    fun setAdapter (scanResult: ScanResult) {
-        bleList.add(scanResult)
+    fun setAdapter (scanResult:ArrayList<ScanResult>) {
+        bleList = scanResult
         notifyDataSetChanged()
     }
 

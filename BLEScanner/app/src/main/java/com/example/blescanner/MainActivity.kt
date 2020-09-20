@@ -2,6 +2,8 @@ package com.example.blescanner
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
@@ -12,14 +14,21 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ListView
+import android.widget.Toast
+import com.example.handler.BleWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
     private lateinit var bleAdapter: BluetoothAdapter
     private var bleScanning = false
     private lateinit var bLeScanner: BluetoothLeScanner
     private lateinit var bleHandler: Handler
     lateinit var listAdapter: ScannedBleListAdapter
+    var scanResult = ArrayList<ScanResult>()
+    lateinit var bleWrapper: BleWrapper
 
     companion object {
         const val SCAN_PERIOD: Long = 3000
@@ -37,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         listAdapter = ScannedBleListAdapter(this)
         lvBleDevices.adapter = listAdapter
-
+        lvBleDevices.onItemClickListener = OnItemClickListener()
     }
 
     private fun checkPermissionAndBleStatus(): Boolean {
@@ -95,9 +104,47 @@ class MainActivity : AppCompatActivity() {
 
         private fun setBleResults(result: ScanResult) {
             val deviceName = result.device
-
-           listAdapter.setAdapter(result)
+           scanResult.add(result)
+           listAdapter.setAdapter(scanResult)
            Log.d("result", deviceName.address)
         }
+    }
+
+    inner class OnItemClickListener: AdapterView.OnItemClickListener {
+        override fun onItemClick(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+            bleWrapper = BleWrapper(this@MainActivity, scanResult[pos].device.address)
+            bleWrapper.also {
+                it.addListener(this@MainActivity)
+                it.connect(false)
+            }
+        }
+
+    }
+
+    override fun onDeviceReady(gatt: BluetoothGatt) {
+        val hrtUUID = bleWrapper.HEART_RATE_SERVICE_UUID
+        for (service in gatt.services) {
+            Log.d("services", "${service.uuid}")
+            if (service.uuid == hrtUUID) {
+                Log.d("HRT_UUID", "is a match")
+                for (characteristic in service.characteristics) {
+                    Log.d("xtics", "${characteristic.uuid}")
+                    bleWrapper.getNotifications(gatt, service.uuid, characteristic.uuid)
+
+                }
+            }
+        }
+    }
+
+    override fun onDeviceDisconnected() {
+         Toast.makeText(this,
+             getString(R.string.toast_disconnect), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onNotify(characteristic: BluetoothGattCharacteristic) {
+        val format = BluetoothGattCharacteristic.FORMAT_UINT16
+        val hrt = "${characteristic.getIntValue(format, 1) } bpm"
+        tvHRT.text = hrt
+        Log.d("value", hrt)
     }
 }
