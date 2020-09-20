@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Naamat</string>
+    <string name="happybtn">I am happy</string>
+    <string name="sadbtn">I am sad</string>
+    <string name="txt">Tell us, how do you feel</string>
+    <string name="img_happy">A happy face with a large smile</string>
+    <string name="img_sad">A sad face</string>
+    <string name="img_normal_mood">A cool face with glasses</string>
+</resources>
