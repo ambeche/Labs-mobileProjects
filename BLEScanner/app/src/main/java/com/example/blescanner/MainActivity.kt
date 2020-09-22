@@ -1,6 +1,9 @@
 package com.example.blescanner
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
@@ -9,6 +12,7 @@ import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +21,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.handler.BleWrapper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,11 +40,15 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
         const val SCAN_PERIOD: Long = 3000
         const val REQUEST_CODE_ENABLE = 0
         const val REQUEST_CODE_FINE_LOCATION = 1
+        const val CHANNEL_ID = "chart"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        createNotificationChannel()
+
         val bltManager =  getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bleAdapter = bltManager.adapter
         checkPermissionAndBleStatus()
@@ -141,8 +151,10 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
                     it.setBackgroundTint(getColor(R.color.colorPrimaryDark))
                     it.show()
                 }
-
             }
+            // waits 3s after connection is established and then sends push notification
+            Handler(Looper.getMainLooper())
+                .postDelayed({createNotification()}, 5000)
         }
     }
 
@@ -156,5 +168,34 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
         val hrt = "${characteristic.getIntValue(format, 1) } bpm"
         tvHRT.text = hrt
         Log.d("value", hrt)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, getString(R.string.channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = getString(R.string.channel_description)
+            }
+            ( getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager ).apply {
+                createNotificationChannel(channel)
+            }
+        }
+    }
+
+    private fun createNotification()  {
+        val notice = NotificationCompat.Builder(this, CHANNEL_ID).apply {
+            val intent = Intent(this@MainActivity, LineChartActivity::class.java)
+                .apply {  Intent.FLAG_ACTIVITY_CLEAR_TASK  }
+            setSmallIcon(R.drawable.ic_baseline_notification_important_24)
+            setContentText(getString(R.string.notice_title))
+            setContentText(getString(R.string.notice_text))
+            priority = NotificationCompat.PRIORITY_DEFAULT
+            setContentIntent(
+                PendingIntent.getActivity(
+                    this@MainActivity, 0, intent, 0 )
+            )
+            setAutoCancel(true)
+        }.build()
+        NotificationManagerCompat.from(this).notify(1,notice)
     }
 }
