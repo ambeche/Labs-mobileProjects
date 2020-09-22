@@ -9,16 +9,16 @@ import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ListView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.handler.BleWrapper
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
@@ -43,6 +43,9 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
         bleAdapter = bltManager.adapter
         checkPermissionAndBleStatus()
         btnScan.setOnClickListener{ startBleScan() }
+        btnChart.setOnClickListener{
+            startActivity( Intent(this, LineChartActivity::class.java))
+        }
 
         listAdapter = ScannedBleListAdapter(this)
         lvBleDevices.adapter = listAdapter
@@ -104,9 +107,9 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
 
         private fun setBleResults(result: ScanResult) {
             val deviceName = result.device
-           scanResult.add(result)
-           listAdapter.setAdapter(scanResult)
-           Log.d("result", deviceName.address)
+            scanResult.add(result)
+            listAdapter.setAdapter(scanResult)
+            Log.d("result", deviceName.address)
         }
     }
 
@@ -130,15 +133,22 @@ class MainActivity : AppCompatActivity(), BleWrapper.BleCallback {
                 for (characteristic in service.characteristics) {
                     Log.d("xtics", "${characteristic.uuid}")
                     bleWrapper.getNotifications(gatt, service.uuid, characteristic.uuid)
-
                 }
+                Snackbar.make(
+                    myCoordinatorLayout, getString(R.string.snackbar_paired, gatt.device.name),
+                    Snackbar.LENGTH_LONG
+                ).also {
+                    it.setBackgroundTint(getColor(R.color.colorPrimaryDark))
+                    it.show()
+                }
+
             }
         }
     }
 
     override fun onDeviceDisconnected() {
-         Toast.makeText(this,
-             getString(R.string.toast_disconnect), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,
+            getString(R.string.toast_disconnect), Toast.LENGTH_SHORT).show()
     }
 
     override fun onNotify(characteristic: BluetoothGattCharacteristic) {
